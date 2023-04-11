@@ -617,7 +617,11 @@ const controlAddBookmark = function() {
     (0, _recipeViewJsDefault.default).update(_modelJs.state.recipe);
     (0, _bookmarksViewJsDefault.default).render(_modelJs.state.bookmarks);
 };
+const controlBookmarks = function() {
+    (0, _bookmarksViewJsDefault.default).render(_modelJs.state.bookmarks);
+};
 const init = function() {
+    (0, _bookmarksViewJsDefault.default).addHandlerRender(controlBookmarks);
     (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes);
     (0, _recipeViewJsDefault.default).addHandlerUpdateServings(controlServings);
     (0, _recipeViewJsDefault.default).addHandlerBookmark(controlAddBookmark);
@@ -2707,16 +2711,27 @@ const updateServings = function(newServings) {
     });
     state.recipe.servings = newServings;
 };
+const persistBookmarks = function() {
+    localStorage.setItem("bookmarks", JSON.stringify(state.bookmarks));
+};
 const addBookmark = function(recipe) {
     state.bookmarks.push(recipe);
     if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+    persistBookmarks();
 };
 const deleteBookmark = function(id) {
     const index = state.bookmarks.findIndex((el)=>el.id === id);
     console.log("index", index);
     state.bookmarks.splice(index, 1);
     if (id === state.recipe.id) state.recipe.bookmarked = false;
+    persistBookmarks();
 };
+const init = function() {
+    const storage = localStorage.getItem("bookmarks");
+    if (storage) state.bookmarks = JSON.parse(storage);
+};
+init();
+console.log("state.bookmarks", state.bookmarks);
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","regenerator-runtime":"dXNgZ","./config.js":"k5Hzs","./helpers.js":"hGI1E"}],"k5Hzs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -3379,6 +3394,9 @@ class BookmarksView extends (0, _viewJsDefault.default) {
     _parentElement = document.querySelector(".bookmarks__list");
     _errorMessage = "No bookmarks yet. Find a nice recipe and bookmark it";
     _message = "";
+    addHandlerRender(handler) {
+        window.addEventListener("load", handler);
+    }
     _generateMarkup() {
         console.log(this._data);
         return this._data.map((result)=>(0, _previewViewJsDefault.default).render(result, false)).join("");
